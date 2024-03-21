@@ -1,0 +1,12 @@
+apiVersion: scaling.gg.com/v1alpha1
+kind: TimeBasedScaler
+metadata:
+  labels:
+    app.kubernetes.io/name: timebasedscaler
+    app.kubernetes.io/instance: timebasedscaler-sample
+    app.kubernetes.io/part-of: kubeoperator-demo
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: kubeoperator-demo
+  name: timebasedscaler-sample
+spec:
+  # TODO(user): Add fields here

@@ -1,0 +1,27 @@
+# permissions for end users to view timebasedscalers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: timebasedscaler-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: kubeoperator-demo
+    app.kubernetes.io/part-of: kubeoperator-demo
+    app.kubernetes.io/managed-by: kustomize
+  name: timebasedscaler-viewer-role
+rules:
+- apiGroups:
+  - scaling.gg.com
+  resources:
+  - timebasedscalers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - scaling.gg.com
+  resources:
+  - timebasedscalers/status
+  verbs:
+  - get
