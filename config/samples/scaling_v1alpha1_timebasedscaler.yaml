@@ -9,4 +9,10 @@ metadata:
     app.kubernetes.io/created-by: kubeoperator-demo
   name: timebasedscaler-sample
 spec:
-  # TODO(user): Add fields here
+  - name: demo
+  - endHour: 16
+  - startHour: 13
+  - replicaCount: 2
+  - deployments:
+    - name: test
+      namespace: default
