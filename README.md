@@ -1,11 +1,18 @@
 # kubeoperator-demo
-// TODO(user): Add simple overview of use/purpose
+
+Scale up or down the deployments based on time.
+
+Requirement : Develop kubernetes operator SDK using the operator-SDK which scale up or down the deployment objects based on time.
+And update the label of the deployment objects to know who updated the deployment configuration.
+Also, update the custom resource object status to success or failure to know the status of the operation.
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+
+
+
+
 
 ## Getting Started
-
 ### Prerequisites
 - go version v1.20.0+
 - docker version 17.03+.
@@ -23,12 +30,6 @@ make docker-build docker-push IMG=<some-registry>/kubeoperator-demo:tag
 And it is required to have access to pull the image from the working environment. 
 Make sure you have the proper permission to the registry if the above commands don’t work.
 
-**Install the CRDs into the cluster:**
-
-```sh
-make install
-```
-
 **Deploy the Manager to the cluster with the image specified by `IMG`:**
 
 ```sh
@@ -38,54 +39,65 @@ make deploy IMG=<some-registry>/kubeoperator-demo:tag
 > **NOTE**: If you encounter RBAC errors, you may need to grant yourself cluster-admin 
 privileges or be logged in as admin.
 
-**Create instances of your solution**
-You can apply the samples (examples) from the config/sample:
+
+### Demo Screenshots
+
+1. Install the operator SDK in the cluster
+
+```sh
+make install
+```
+
+If we want to see the logs, run it via 
+
+```sh
+make install run
+```
+
+2. It creates the CRD (Custom Resource Defintion) in the cluster
+
+![img.png](img.png)
+
+3. Check do you have any deployments already, if not create one
+
+![img_1.png](img_1.png)
+
+4. Apply the CR
+
+![img_2.png](img_2.png)
+
+we can also apply all the CR which is in that folders by using below command
 
 ```sh
 kubectl apply -k config/samples/
 ```
 
->**NOTE**: Ensure that the samples has default values to test it out.
 
-### To Uninstall
-**Delete the instances (CRs) from the cluster:**
+5. Check the deployment whether it scaled up or down as per the CR.
+
+6. Delete the instance (CRs) from the cluster
 
 ```sh
 kubectl delete -k config/samples/
 ```
 
-**Delete the APIs(CRDs) from the cluster:**
+7. Delete the API (CRD) from the cluster
 
 ```sh
 make uninstall
 ```
 
-**UnDeploy the controller from the cluster:**
+8. Undeploy the controller from the cluster
 
 ```sh
 make undeploy
 ```
 
-## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
+Note : Used https://killercoda.com/playgrounds/scenario/kubernetes to test this one.
 
-**NOTE:** Run `make help` for more information on all potential `make` targets
-
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
-
-## License
-
-Copyright 2024.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+To Update Golang Version in killercoda:
+Remove the go : rm -rf /usr/local/go 
+Check the infrastructure : hostnamectl
+Download proper file for that infrastructure : wget https://go.dev/dl/<file name>
+Extract the tar : tar -C /usr/local -xzf <file-name>
 

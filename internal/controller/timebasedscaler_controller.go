@@ -54,7 +54,7 @@ func (r *TimeBasedScalerReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		"reqNamespacedName": req.NamespacedName,
 		"reqNamespace":      req.Namespace,
 	}
-	l.Info(" reconcile info", logMap)
+	l.Info(" reconcile info", "request information", logMap)
 
 	timeBasedScaleConfig := &scalingv1alpha1.TimeBasedScaler{}
 	err := r.Get(ctx, req.NamespacedName, timeBasedScaleConfig)
@@ -83,7 +83,7 @@ func (r *TimeBasedScalerReconciler) scaleDeployment(ctx context.Context, timeBas
 	l := log.FromContext(ctx)
 
 	currentHour := time.Now().UTC().Hour()
-	l.Info("Current Hour", currentHour)
+	l.Info("Scaling", "current hour", currentHour)
 	startHour := timeBasedScaleConfig.Spec.StartHour
 	endHour := timeBasedScaleConfig.Spec.EndHour
 	if int32(currentHour) > startHour && int32(currentHour) < endHour {
