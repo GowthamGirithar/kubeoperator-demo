@@ -96,8 +96,8 @@ make undeploy
 Note : Used https://killercoda.com/playgrounds/scenario/kubernetes to test this one.
 
 To Update Golang Version in killercoda:
-Remove the go : rm -rf /usr/local/go 
-Check the infrastructure : hostnamectl
-Download proper file for that infrastructure : wget https://go.dev/dl/<file name>
-Extract the tar : tar -C /usr/local -xzf <file-name>
+1. Remove the go : rm -rf /usr/local/go 
+2. Check the infrastructure : hostnamectl
+3. Download proper file for that infrastructure : wget https://go.dev/dl/<file name>
+4. Extract the tar : tar -C /usr/local -xzf <file-name>
 
