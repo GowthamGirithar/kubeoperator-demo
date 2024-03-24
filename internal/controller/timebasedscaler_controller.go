@@ -41,7 +41,6 @@ type TimeBasedScalerReconciler struct {
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
 // the TimeBasedScaler object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
@@ -50,44 +49,84 @@ type TimeBasedScalerReconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.16.3/pkg/reconcile
 func (r *TimeBasedScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	l := log.FromContext(ctx)
-	l.Info(" inside reconcile loop ", "req name :", req.Name, ",req.NamespacedName :", req.NamespacedName, ", req.Namespace", req.Namespace)
-	deploymentConfig := &scalingv1alpha1.TimeBasedScaler{}
-	err := r.Get(ctx, req.NamespacedName, deploymentConfig)
+	logMap := map[string]interface{}{
+		"reqName":           req.Name,
+		"reqNamespacedName": req.NamespacedName,
+		"reqNamespace":      req.Namespace,
+	}
+	l.Info(" reconcile info", logMap)
+
+	timeBasedScaleConfig := &scalingv1alpha1.TimeBasedScaler{}
+	err := r.Get(ctx, req.NamespacedName, timeBasedScaleConfig)
 	if err != nil {
-		l.Error(err, "error in getting crd details")
+		l.Error(err, "error in getting timeBasedScalerConfig details")
 		return ctrl.Result{}, err
 	}
-	currentHr := time.Now().UTC().Hour()
-	if int32(currentHr) > deploymentConfig.Spec.StartHour && int32(currentHr) < deploymentConfig.Spec.EndHour {
+
+	err = r.scaleDeployment(ctx, timeBasedScaleConfig)
+	if err != nil {
+		timeBasedScaleConfig.Status.Status = "Failure"
+		return ctrl.Result{}, err
+	}
+	timeBasedScaleConfig.Status.Status = "Success"
+
+	// update the status to the custom resource
+	err = r.Status().Update(ctx, timeBasedScaleConfig)
+	if err != nil {
+		l.Error(err, "error in updating the controller status")
+	}
+
+	return ctrl.Result{RequeueAfter: 10 * time.Minute}, nil
+}
+
+func (r *TimeBasedScalerReconciler) scaleDeployment(ctx context.Context, timeBasedScaleConfig *scalingv1alpha1.TimeBasedScaler) error {
+	l := log.FromContext(ctx)
+
+	currentHour := time.Now().UTC().Hour()
+	l.Info("Current Hour", currentHour)
+	startHour := timeBasedScaleConfig.Spec.StartHour
+	endHour := timeBasedScaleConfig.Spec.EndHour
+	if int32(currentHour) > startHour && int32(currentHour) < endHour {
+		// get deployment objects for which we need to scale
 		deployment := &v1.Deployment{}
-		err = r.Get(ctx, types.NamespacedName{
-			Namespace: deploymentConfig.Spec.Deployments[0].Namespace,
-			Name:      deploymentConfig.Spec.Deployments[0].Name,
-		}, deployment)
-		if err != nil {
-			l.Error(err, "error in getting deployment details")
-			return ctrl.Result{}, err
-		}
+		for _, v := range timeBasedScaleConfig.Spec.Deployments {
+			err := r.Get(ctx, types.NamespacedName{
+				Namespace: v.Namespace,
+				Name:      v.Name,
+			}, deployment)
+			if err != nil {
+				l.Error(err, "error in getting deployment details for the deployment ", v.Name)
+				return err
+			}
 
-		if deployment.Spec.Replicas == &deploymentConfig.Spec.ReplicaCount {
-			return ctrl.Result{}, nil
-		}
+			// If we have already configured replicas don't do anything
+			// set the labels accordingly
+			if deployment.Spec.Replicas == &timeBasedScaleConfig.Spec.ReplicaCount {
+				deployment.Labels = map[string]string{
+					"time-based-scaling": "false",
+				}
+				return nil
+			} else {
+				deployment.Spec.Replicas = &timeBasedScaleConfig.Spec.ReplicaCount
+				deployment.Labels = map[string]string{
+					"time-based-scaling": "true",
+				}
+			}
 
-		deployment.Spec.Replicas = &deploymentConfig.Spec.ReplicaCount
-		err = r.Update(ctx, deployment)
-		if err != nil {
-			deploymentConfig.Status.Status = "Failed"
-			l.Error(err, "error in updating deployment details")
-			return ctrl.Result{}, err
+			err = r.Update(ctx, deployment)
+			if err != nil {
+				l.Error(err, "error in updating deployment details for the deployment ", v.Name)
+				return err
+			}
 		}
 	}
-	deploymentConfig.Status.Status = "Success"
-	return ctrl.Result{RequeueAfter: 10 * time.Minute}, nil
+	return nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *TimeBasedScalerReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&scalingv1alpha1.TimeBasedScaler{}).
+		Owns(&v1.Deployment{}).
 		Complete(r)
 }
