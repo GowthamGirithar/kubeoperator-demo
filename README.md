@@ -8,9 +8,11 @@ Also, update the custom resource object status to success or failure to know the
 
 ## Description
 
+Reference : https://sdk.operatorframework.io/docs/building-operators/golang/tutorial/
 
-
-
+API is in under api folder. Whenever we update the API, run `make generate` command and also `make manifests`
+We can see the controller with Reconcile method inside internal where we should write our custom logic for the operator.
+Sample CR is under /config/samples
 
 ## Getting Started
 ### Prerequisites
@@ -40,7 +42,7 @@ make deploy IMG=<some-registry>/kubeoperator-demo:tag
 privileges or be logged in as admin.
 
 
-### Demo Screenshots
+### Demo steps with screenshots
 
 1. Install the operator SDK in the cluster
 
