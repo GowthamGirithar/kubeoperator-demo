@@ -1,5 +1,7 @@
 # kubeoperator-demo
 
+Existing Operator : https://operatorhub.io/
+
 Scale up or down the deployments based on time.
 
 Requirement : Develop kubernetes operator SDK using the operator-SDK which scale up or down the deployment objects based on time.
@@ -58,15 +60,15 @@ make install run
 
 2. It creates the CRD (Custom Resource Defintion) in the cluster
 
-![img.png](img.png)
+![img.png](docs/images/img.png)
 
 3. Check do you have any deployments already, if not create one
 
-![img_1.png](img_1.png)
+![img_1.png](docs/images/img_1.png)
 
 4. Apply the CR
 
-![img_2.png](img_2.png)
+![img_2.png](docs/images/img_2.png)
 
 we can also apply all the CR which is in that folders by using below command
 
@@ -94,6 +96,10 @@ make uninstall
 ```sh
 make undeploy
 ```
+
+To deploy operator from operator hub, you can find more information under each operator
+eg: https://operatorhub.io/operator/istio
+
 
 Note : Used https://killercoda.com/playgrounds/scenario/kubernetes to test this one.
 
